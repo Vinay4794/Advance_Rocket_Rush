@@ -137,6 +137,26 @@
       <!-- ✅ FIXED: only ONE stageContainer + ONE canvas -->
       <section id="stageContainer" class="stageContainer">
         <canvas id="game"></canvas>
+        <!-- ✅ MOBILE HUD OVERLAY (inside game window bottom) -->
+<div id="mobileHud" class="mobileHud" aria-hidden="true">
+  <div class="mhRow">
+    <div class="mhChip">
+      <span class="mhKey">LEVEL</span>
+      <b id="mLevelEl" class="mhVal">1</b>
+    </div>
+
+    <div class="mhChip mhWide">
+      <div class="mhTop">
+        <span class="mhKey">DIFFICULTY</span>
+        <b id="mDifficultyText" class="mhVal">0%</b>
+      </div>
+      <div class="mhBarOuter">
+        <div id="mDifficultyProgress" class="mhBarInner"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MOBILE CONTROLS (ONLY UP/DOWN) -->
 <div class="mobileControls">
   <button id="downBtn" class="ctrlBtn downBtn">⬇</button>
