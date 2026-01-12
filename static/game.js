@@ -52,8 +52,9 @@ const slowText = $("slowText");
 const magnetText = $("magnetText");
 
 // Mobile controls
-const upBtn = $("upBtn");
-const downBtn = $("downBtn");
+const upBtn = $("btnUp");
+const downBtn = $("btnDown");
+
 const leftBtn = $("leftBtn");
 const rightBtn = $("rightBtn");
 
