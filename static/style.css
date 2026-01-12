@@ -1,565 +1,1158 @@
-/* ================== RESET ================== */
-*{ margin:0; padding:0; box-sizing:border-box; }
-html, body{ width:100%; height:100%; overflow:hidden; }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:system-ui,Segoe UI,Arial,sans-serif;
+}
 
-/* ================== BODY ================== */
-body{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color:#eaeaf6;
-  background:#050512;
+/* =========================
+   GLOBAL (Scrollable Mobile Fix)
+========================= */
+html, body{
+  height:100%;
+  margin:0;
+  overflow-x:hidden;
+  overflow-y:auto;          /* ✅ allow vertical scroll */
+  color:#fff;
+  background:#050513;
+  touch-action: pan-y;      /* ✅ allow vertical scrolling gesture */
+  user-select:none;
+  -webkit-user-select:none;
+}
 
+/* Keep GAME touch locked (so swipe/hold works perfectly) */
+#stageContainer, #game, canvas{
+  touch-action: none;       /* ✅ no scroll inside game area */
+}
+
+canvas {
+  touch-action: none;
+}
+
+/* =========================
+   BACKGROUND (premium neon)
+========================= */
+.bg{
+  position:fixed;
+  inset:0;
+  z-index:-1;
   overflow:hidden;
-  overscroll-behavior:none;
-
-  /* ✅ keep mobile stable */
-  touch-action: manipulation;
-}
-
-/* utility */
-.hidden{ display:none !important; }
-
-/* =============== THEMES (only for UI now) =============== */
-:root{
-  --bg1:#050512;
-  --bg2:#0b0c18;
-  --panel: rgba(12,13,24,0.58);
-  --glass: rgba(255,255,255,0.06);
-  --stroke: rgba(255,255,255,0.10);
-
-  --accent1: rgba(56,189,248,0.95);
-  --accent2: rgba(167,139,250,0.95);
-  --accent3: rgba(34,197,94,0.90);
-
-  --danger: rgba(255,90,120,0.40);
-}
-
-/* ================== UI BACKGROUND ================== */
-.auroraBg{
-  position:fixed; inset:0; z-index:-3;
   background:
-    radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--accent2) 20%, transparent), transparent 56%),
-    radial-gradient(circle at 82% 25%, color-mix(in oklab, var(--accent1) 14%, transparent), transparent 55%),
-    radial-gradient(circle at 55% 85%, rgba(255,255,255,.05), transparent 62%),
-    linear-gradient(180deg, var(--bg1), var(--bg2));
+    radial-gradient(1200px 700px at 20% 10%, rgba(70,120,255,.18), transparent 55%),
+    radial-gradient(900px 520px at 85% 20%, rgba(35,210,200,.14), transparent 55%),
+    radial-gradient(850px 520px at 60% 90%, rgba(255,80,190,.10), transparent 60%),
+    linear-gradient(180deg,#060613,#040412);
 }
 
-.grain{
-  position:fixed; inset:0; z-index:-2;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
-  opacity:.28;
-  mix-blend-mode: overlay;
-}
-
-/* floating icons (decor) */
-.floatIcons{ position:fixed; inset:0; pointer-events:none; z-index:-1; }
-.fi{ position:absolute; opacity:.35; }
-.fi.star{
-  width:12px; height:12px; left:10%; top:18%;
-  background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 60%);
-  box-shadow: 0 0 30px rgba(255,255,255,0.25);
-}
-.fi.spark{
-  width:20px; height:4px; left:78%; top:22%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-  transform: rotate(18deg);
-}
-.fi.orb{
-  width:90px; height:90px; left:72%; top:68%;
+.aurora{
+  position:absolute;
+  filter: blur(55px);
+  opacity:.6;
   border-radius:999px;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.14), transparent 60%);
+  mix-blend-mode:screen;
+  animation: aur 12s ease-in-out infinite;
 }
-.fi.ring{
-  width:120px; height:120px; left:14%; top:70%;
-  border-radius:999px;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.05);
+.a1{width:700px;height:300px;left:-140px;top:120px;background:rgba(120,160,255,.33)}
+.a2{width:680px;height:320px;right:-220px;top:180px;background:rgba(35,210,200,.25);animation-delay:2s}
+.a3{width:740px;height:360px;left:35%;bottom:-260px;background:rgba(255,80,190,.20);animation-delay:4s}
+
+@keyframes aur{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(24px,-24px) scale(1.05)}
 }
 
-/* ================== MAIN LAYOUT ================== */
-.gameShell{
-  height: 100dvh;
-  max-height: 100dvh;
-  width: 100%;
-  overflow:hidden;
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
 
-  padding: 12px;
-  padding-left: max(12px, env(safe-area-inset-left));
-  padding-right: max(12px, env(safe-area-inset-right));
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
+.grid{
+  position:absolute;
+  inset:0;
+  opacity:.07;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:78px 78px;
+  animation:gridmove 14s linear infinite;
+}
+@keyframes gridmove{
+  from{transform:translateY(0)}
+  to{transform:translateY(78px)}
+}
 
+/* =========================
+   APP LAYOUT
+========================= */
+.app{
+  width:min(1600px, 98vw);
+  margin:0 auto;
+  padding:14px;
   display:grid;
-  grid-template-columns: 360px 1fr;
-  gap: 12px;
-
-  min-width:0;
-  min-height:0;
-}
-
-/* ================== SIDEPANEL ================== */
-.sidePanel{
-  padding:16px;
-  padding-bottom: 18px;
-  display:flex;
-  flex-direction:column;
+  grid-template-rows:auto 1fr;
   gap:12px;
 
-  border-radius: 24px;
-  border: 1px solid var(--stroke);
-  background: var(--panel);
-  backdrop-filter: blur(16px);
-
-  box-shadow: 0 18px 55px rgba(0,0,0,.25);
-
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.16) transparent;
-}
-.sidePanel::-webkit-scrollbar{ width: 10px; }
-.sidePanel::-webkit-scrollbar-track{
-  background: rgba(0,0,0,0.18);
-  border-radius: 999px;
-}
-.sidePanel::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,0.14);
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,0.25);
-}
-.sidePanel::-webkit-scrollbar-thumb:hover{
-  background: rgba(255,255,255,0.22);
+  height:auto;
+  min-height:100vh;
 }
 
-/* brand */
-.brand{
-  display:flex; align-items:center; gap:12px;
-  padding:14px;
-  border-radius:20px;
-  background: var(--glass);
-  border: 1px solid var(--stroke);
-}
-.brandIcon{
-  width:46px; height:46px; border-radius:18px;
-  display:grid; place-items:center;
-  color:#d8d6ff;
-  background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--accent2) 30%, transparent), color-mix(in oklab, var(--accent1) 10%, transparent));
-  border: 1px solid rgba(255,255,255,0.16);
-}
-.brandIcon svg{ width:26px; height:26px; }
-.brandName{ font-weight:950; letter-spacing:1.5px; }
-.brandTag{ opacity:.7; font-size:12px; margin-top:2px; }
-
-/* menu */
-.menuGrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.menuBlock{
-  position:relative;
-  padding:12px;
-  border-radius:18px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.menuLabel{ display:block; font-size:11px; opacity:.7; letter-spacing:1px; margin-bottom:8px; }
-
-/* dropdowns */
-.menuSelect{
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  width:100%;
-  cursor: pointer;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-
-  padding: 12px 42px 12px 12px;
-  border-radius: 16px;
-
-  background:
-    radial-gradient(circle at 20% 15%, rgba(56,189,248,0.10), transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(167,139,250,0.10), transparent 50%),
-    rgba(0,0,0,0.35);
-
-  border: 1px solid rgba(255,255,255,0.14);
-  color: rgba(245,246,255,0.95);
-  outline:none;
-
-  box-shadow:
-    0 14px 45px rgba(0,0,0,0.25),
-    0 0 0 1px rgba(255,255,255,0.06) inset;
-
-  transition:
-    transform 0.14s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    filter 0.18s ease;
-
-  -webkit-tap-highlight-color: transparent;
-}
-.menuSelect:hover{
-  border-color: rgba(56,189,248,0.35);
-  box-shadow:
-    0 18px 55px rgba(0,0,0,0.34),
-    0 0 0 1px rgba(255,255,255,0.08) inset,
-    0 0 22px rgba(56,189,248,0.18);
-  filter: brightness(1.02);
-}
-.menuSelect:active{ transform: translateY(1px) scale(0.99); }
-.menuSelect:focus{
-  border-color: rgba(167,139,250,0.55);
-  box-shadow:
-    0 18px 55px rgba(0,0,0,0.35),
-    0 0 0 1px rgba(255,255,255,0.08) inset,
-    0 0 0 4px rgba(167,139,250,0.18);
-}
-.menuSelect option{
-  background: rgba(10,10,18,1);
-  color: rgba(245,246,255,0.95);
-  font-weight: 800;
-}
-
-/* arrow icon */
-.menuBlock::after{
-  content: "▾";
-  position: absolute;
-  right: 14px;
-  top: 38px;
-  font-size: 14px;
-  font-weight: 1000;
-  opacity: 0.85;
-  pointer-events: none;
-
-  color: rgba(255,255,255,0.85);
-  text-shadow: 0 0 18px rgba(56,189,248,0.25);
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
-.menuBlock:hover::after{ transform: translateY(1px); opacity: 1; }
-
-#modeSelect{
-  background:
-    radial-gradient(circle at 18% 25%, rgba(34,197,94,0.12), transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(56,189,248,0.12), transparent 55%),
-    rgba(0,0,0,0.35);
-}
-
-/* buttons/cards */
-.powerBtn{
-  width:100%;
-  border:none;
-  cursor:pointer;
-  padding:12px;
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-weight:900;
-  color:#0b0c18;
-  background: linear-gradient(90deg, var(--accent2), var(--accent1));
-  box-shadow: 0 14px 40px rgba(0,0,0,.25);
-}
-
-.coinsCard{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px;
-  border-radius:20px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.shopBtn{
-  border:none; cursor:pointer;
-  padding:12px 14px;
-  border-radius:16px;
-  font-weight:1000;
-  letter-spacing:1px;
-  color:#070812;
-  background: linear-gradient(90deg, rgba(255,255,255,0.75), rgba(255,255,255,0.20));
-  border: 1px solid rgba(255,255,255,0.20);
-}
-
-.customCard, .tipCard, .progressCard, .powerStatusCard{
-  padding:14px;
-  border-radius:20px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.startBtn{
-  margin-top:auto;
-  padding:16px;
-  border-radius:18px;
-  border:none;
-  cursor:pointer;
-  font-weight:950;
-  letter-spacing:1px;
-  color:#f6f7ff;
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-  border: 1px solid rgba(255,255,255,0.18);
-  box-shadow: 0 18px 55px rgba(0,0,0,.25);
-}
-
-/* ================== PLAY AREA ================== */
-.playArea{
-  height: 100%;
-  min-width:0;
-  min-height: 0;
-  overflow:hidden;
-
-  display:grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 12px;
-}
-
-/* top hud */
-.topHud{
-  display:flex; justify-content:space-between; align-items:center;
-  padding: 12px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--stroke);
-  background: rgba(12,13,24,0.42);
-  backdrop-filter: blur(14px);
-}
-
-/* HUD buttons */
-.hudBtn{
-  width: 46px;
-  height: 38px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  cursor:pointer;
-  color:#eaeaf6;
-  font-size:16px;
-  margin-left:8px;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: none;
-}
-.hudBtn.danger{
-  border-color: color-mix(in oklab, var(--danger) 45%, transparent);
-  background: rgba(255,90,120,0.10);
-}
-
-/* ✅ FULLSCREEN STABILITY SHELL */
-.stageShell{
-  position: relative;
-  width:100%;
-  height:100%;
-  min-height:0;
-  overflow:hidden;
-  border-radius:26px;
-}
-#stageShell:fullscreen{
-  width:100vw !important;
-  height:100vh !important;
-  border-radius:0 !important;
-  background:#000 !important;
-}
-#stageShell:fullscreen .stageContainer,
-#stageShell:fullscreen canvas#game{
-  border-radius:0 !important;
-  width:100% !important;
-  height:100% !important;
-}
-
-/* stage container */
-.stageContainer{
-  position:relative;
-  width:100%;
-  height:100%;
-  min-height:0;
-  overflow:hidden;
-  border-radius:26px;
-}
-
-/* canvas */
-canvas#game{
-  width:100%;
-  height:100%;
-  display:block;
-  border-radius: 26px;
-  background:#000;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 30px 90px rgba(0,0,0,0.72);
-
-  /* ✅ IMPORTANT for mobile controls + tap start */
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* overlays */
-.overlay, .gameOver{
-  position:absolute; inset: 0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  pointer-events:none;
-  z-index:40;
-}
-.overlay.hidden, .gameOver.hidden{ display:none; }
-
-/* dialog */
-.overlayCard, .gameOverCard{
-  pointer-events:auto;
-  padding: 22px 24px;
-  border-radius: 26px;
-  width: min(560px, 92%);
-  text-align:center;
-
-  background:
-    radial-gradient(circle at 20% 15%, rgba(56,189,248,0.08), transparent 55%),
-    radial-gradient(circle at 80% 30%, rgba(167,139,250,0.10), transparent 55%),
-    rgba(0,0,0,0.70);
-
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(18px);
-  box-shadow:
-    0 32px 90px rgba(0,0,0,0.72),
-    0 0 0 1px rgba(255,255,255,0.06) inset;
-}
-
-/* ================== BOTTOM CONSOLE ================== */
-.bottomConsole{
-  position: relative;
+/* =========================
+   TOPBAR
+========================= */
+.topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap: 16px;
-
-  padding: 14px 18px;
-  border-radius: 22px;
-
-  background:
-    radial-gradient(circle at 10% 25%, rgba(56,189,248,0.08), transparent 58%),
-    radial-gradient(circle at 88% 25%, rgba(167,139,250,0.10), transparent 58%),
-    rgba(12,13,24,0.48);
-
-  border: 1px solid rgba(255,255,255,0.12);
+  padding: 6px 10px;
+  border-radius:20px;
+  background: rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
   backdrop-filter: blur(16px);
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+}
 
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:44px;height:44px;
+  border-radius:16px;
+  font-size:1.15rem;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+.brandText h1{font-size:1.45rem;}
+.brandText p{font-size:.88rem;margin-top:1px;opacity:.8}
+
+.topRight{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* Mode */
+.modeBox{
+  padding:10px 12px;
+  border-radius:18px;
+  background: rgba(0,0,0,.20);
+  border:1px solid rgba(255,255,255,.10);
+}
+.modeLabel{opacity:.7;font-size:.86rem;margin-bottom:6px}
+
+.select{
+  width:150px;
+  border-radius:14px;
+  padding:10px 12px;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.14);
+  color:#fff;
+  font-weight:900;
+  outline:none;
+  cursor:pointer;
   box-shadow:
-    0 28px 90px rgba(0,0,0,0.42),
-    0 0 0 1px rgba(255,255,255,0.06) inset;
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 10px 28px rgba(0,0,0,.35);
+}
+.select:hover{
+  background: rgba(0,0,0,.65);
+  border-color: rgba(255,255,255,.20);
+}
+.select:focus{
+  border-color: rgba(35,210,200,.55);
+  box-shadow:
+    0 0 0 4px rgba(35,210,200,.12),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+.select option{background:#0b0f1d;color:#ffffff}
 
+.iconBtn{
+  width:48px;height:48px;border-radius:18px;
+  border:none;cursor:pointer;
+  color:#fff;font-size:1.1rem;font-weight:950;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  transition:.16s ease;
+}
+.iconBtn:hover{transform:translateY(-2px);background:rgba(255,255,255,.10)}
+.iconBtn:active{transform:translateY(0)}
+
+/* =========================
+   TITLE BAR RIBBON CONTROLS
+========================= */
+.ribbonControls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:18px;
+  background: rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.10);
+  flex-wrap:wrap;
+}
+
+.ribbonBtn{
+  border:none;
+  cursor:pointer;
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:950;
+  font-size:.95rem;
+  color:#fff;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  transition:.16s ease;
+  line-height:1;
+  white-space:nowrap;
+}
+.ribbonBtn:hover{ transform: translateY(-2px); }
+.ribbonBtn:active{ transform: translateY(0); }
+
+.ribbonBtn.primary{
+  background: linear-gradient(135deg, #4b7bff, #23d2c8);
+  color:#061018;
+  border:none;
+  box-shadow: 0 16px 40px rgba(35,210,200,.16);
+}
+
+/* =========================
+   MAIN GRID: Left | Game | Right
+========================= */
+.layout{
+  display:grid;
+  grid-template-columns: 260px 1fr 260px;
+  gap:12px;
+  min-height:0;
+}
+
+/* panels */
+.panel{
+  padding:14px;
+  border-radius:26px;
+  background: rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 85px rgba(0,0,0,.55);
+  overflow:auto;
+  max-height: calc(100vh - 110px);
+}
+
+.panelTitle{
+  font-weight:950;
+  font-size:1.05rem;
+  opacity:.9;
+  margin-bottom:10px;
+}
+
+.panel::-webkit-scrollbar{width:8px}
+.panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
+
+/* left stats */
+.statGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.statCard{
+  padding:12px;
+  border-radius:20px;
+  background: rgba(0,0,0,.20);
+  border:1px solid rgba(255,255,255,.10);
+  transition:.16s ease;
+}
+.statCard:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.16)}
+.statCard .k{opacity:.72;font-size:.9rem}
+.statCard .v{margin-top:6px;font-size:1.45rem;font-weight:950}
+.statCard .v.small{font-size:1.05rem}
+
+.block{
+  margin-top:12px;
+  padding:12px;
+  border-radius:22px;
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+.blockHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:950}
+.tag{
+  font-size:.85rem;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  opacity:.9
+}
+.tag.hot{
+  background: linear-gradient(135deg, rgba(255,80,190,.35), rgba(255,200,80,.10));
+  border:1px solid rgba(255,255,255,.14)
+}
+
+.bar{
+  height:10px;
+  border-radius:999px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(255,255,255,.10);
   overflow:hidden;
 }
-
-/* ================== MOBILE CONTROLS (UP/DOWN) ================== */
-.mobileControls{
-  position: absolute;
-  inset: 0;
-  pointer-events: none; /* allow canvas touches except buttons */
-  z-index: 60;
+.barFill{
+  height:100%;
+  width:12%;
+  border-radius:999px;
+  background: linear-gradient(90deg, #4b7bff, #23d2c8);
+  box-shadow:0 0 24px rgba(35,210,200,.25);
+  transition:width .22s ease;
 }
 
-.ctrlBtn{
-  pointer-events: auto;
+.muted{margin-top:8px;opacity:.7;font-size:.9rem}
+
+.keyRow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.key{
+  padding:8px 10px;border-radius:12px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  font-weight:950;
+}
+.keyDesc{opacity:.78}
+
+/* =========================
+   GAME CENTER
+========================= */
+.gameArea{
+  min-width:0;
+  display:grid;
+  grid-template-rows: 1fr auto;
+  gap:10px;
+  min-height:0;
+}
+
+.stageWrap{
+  position:relative;
+  min-height:380px;
+}
+
+.stage{
+  position:relative;
+  height:65vh;
+  min-height:380px;
+  border-radius:30px;
+  overflow:hidden;
+  background: rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow: 0 40px 120px rgba(0,0,0,.65);
+}
+
+.stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(900px 400px at 50% 0%, rgba(255,255,255,.12), transparent 60%);
+}
+
+canvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* overlay */
+.overlay{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background: radial-gradient(720px 420px at 50% 45%, rgba(0,0,0,.08), rgba(0,0,0,.55));
+  pointer-events:none;
+}
+.overlay.hidden{display:none}
+
+.modal{
+  width:min(560px,94%);
+  padding:22px;
+  border-radius:26px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 28px 110px rgba(0,0,0,.72);
+}
+.modal h2{font-size:1.75rem;font-weight:950}
+.modal p{margin-top:8px;opacity:.85}
+.miniNote{margin-top:10px;font-size:.92rem;opacity:.7}
+
+/* =========================
+   RIGHT PANEL (cards)
+========================= */
+.tipCard{
+  padding:12px;
+  border-radius:22px;
+  background: linear-gradient(135deg, rgba(35,210,200,.10), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);
+  margin-bottom:12px;
+}
+
+.tipTop{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(35,210,200,1);box-shadow:0 0 18px rgba(35,210,200,.45)}
+.tipTitle{font-weight:950}
+.tipText{opacity:.9;font-weight:700;line-height:1.4}
+
+.chipGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chip{
+  padding:10px 10px;border-radius:16px;
+  background: rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.10);
+  transition:.16s ease;
+}
+.chip:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.16)}
+
+.badgeRow{display:flex;gap:10px;flex-wrap:wrap}
+.badge{
+  font-weight:950;font-size:.9rem;
+  padding:8px 11px;border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  opacity:.55;transition:.2s ease;
+}
+.badge.active{
+  opacity:1;
+  background: linear-gradient(135deg, rgba(75,123,255,.95), rgba(35,210,200,.95));
+  color:#061018;border:none;
+}
+
+.bossCard{
+  margin-top:12px;
+  padding:14px;
+  border-radius:24px;
+  background: linear-gradient(135deg, rgba(255,80,190,.18), rgba(255,200,80,.05));
+  border:1px solid rgba(255,255,255,.12);
+}
+.bossTitle{font-weight:950;margin-bottom:8px}
+.bossText{opacity:.8;line-height:1.4}
+
+/* =========================
+   DRAWER
+========================= */
+.drawer{
+  position:fixed; top:14px; right:14px;
+  width:min(380px,92vw);
+  height:calc(100vh - 28px);
+  border-radius:28px;
+  background:rgba(10,12,25,.78);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(18px);
+  box-shadow:0 45px 140px rgba(0,0,0,.72);
+  padding:14px;
+  overflow:auto;
+}
+.drawer.hidden{display:none}
+.drawerHead{display:flex;justify-content:space-between;align-items:flex-start;padding:4px 2px 10px}
+.drawerTitle{font-size:1.25rem;font-weight:950}
+.drawerSub{opacity:.72;margin-top:4px;font-size:.92rem}
+.drawerCard{margin-top:12px;padding:14px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+.drawerCardTitle{font-weight:950;margin-bottom:10px}
+.drawerGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dstat{padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.08)}
+.dstat .l{opacity:.75;font-size:.9rem}
+.dstat .x{margin-top:6px;font-weight:950;font-size:1.1rem}
+.drawerList{margin-top:6px;padding-left:18px;opacity:.86}
+.drawerList li{margin:7px 0}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 1100px){
+  .layout{grid-template-columns: 1fr}
+  .panel{display:none}
+}
+
+/* =========================
+   MOBILE: LANDSCAPE GAME + SIDE CONTROLS
+========================= */
+@media (max-width: 768px){
+
+  .brandText p{ display:none; }
+
+  .app{
+    padding: 10px 10px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .modeBox{ padding: 8px 10px; }
+  .select{ width: 128px; padding: 9px 10px; }
+
+  .stageWrap{
+    height:auto;
+    min-height:0;
+  }
+
+  .stage{
+    height:62vh;
+    min-height:320px;
+    border-radius:26px;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 520px){
+  .brandText h1{ font-size: 1.15rem; }
+  .iconBtn{ width: 44px; height: 44px; }
+  .ribbonBtn{ padding: 10px 12px; font-size: .88rem; }
+}
+
+/* =========================
+   LAPTOP / DESKTOP: BIG FULL HEIGHT GAME
+========================= */
+@media (min-width: 1101px){
+
+  .app{
+    min-height: 100vh;
+    height: 100vh;
+  }
+
+  .layout{
+    height: 100%;
+    min-height: 0;
+  }
+
+  .gameArea{
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: 1fr;
+  }
+
+  .stageWrap{
+    height: 100%;
+    min-height: 0;
+  }
+
+  .stage{
+    height: 100%;
+    min-height: 0;
+  }
+
+  .panel{
+    height: 100%;
+    max-height: none;
+  }
+}
+
+/* =========================
+   IN-GAME RIBBON BOX
+========================= */
+.gameRibbonBox{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:12;
+
+  padding:12px 14px;
+  border-radius:20px;
+  background: rgba(0,0,0,.40);
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 110px rgba(0,0,0,.65);
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.grTitle{
+  font-weight:950;
+  opacity:.88;
+  font-size:.95rem;
+  white-space:nowrap;
+}
+
+.grBtns{
+  display:flex;
+  gap:10px;
+}
+
+.grBtn{
+  border:none;
+  cursor:pointer;
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:950;
+  font-size:.92rem;
+  color:#fff;
+
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  transition:.16s ease;
+}
+
+.grBtn:hover{ transform: translateY(-2px); }
+.grBtn:active{ transform: translateY(0); }
+
+.grBtn.primary{
+  background: linear-gradient(135deg, #4b7bff, #23d2c8);
+  color:#061018;
+  border:none;
+}
+
+/* hide helper class */
+.gameRibbonBox.hidden{ display:none; }
+
+@media (max-width: 520px){
+  .gameRibbonBox{ bottom:12px; padding:10px 12px; gap:10px; }
+  .grTitle{ display:none; }
+  .grBtn{ padding:10px 12px; }
+}
+
+/* =========================
+   PREMIUM MOBILE BUTTONS
+   (attached to stageContainer)
+========================= */
+
+/* Wrapper must be relative so buttons stick to it */
+#stageContainer{
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Canvas full */
+#game{
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 22px;
+}
+
+/* Button base */
+.mobileBtn{
   position: absolute;
+  z-index: 9999;
 
-  width: 72px;
-  height: 62px;
+  width: 74px;
+  height: 74px;
+  border-radius: 20px;
 
-  display: grid;
-  place-items: center;
-
-  border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.12),
+    rgba(15,15,20,0.60)
+  );
 
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
-  color: #fff;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.55),
+    inset 0 2px 10px rgba(255,255,255,0.10);
+
+  color: white;
+  font-size: 30px;
   font-weight: 900;
-  font-size: 22px;
-  line-height: 1;
 
-  box-shadow: 0 12px 35px rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
+  cursor: pointer;
 
-  transition: transform 0.08s ease, filter 0.08s ease;
-}
-.ctrlBtn:active{
-  transform: scale(0.96);
-  filter: brightness(1.2);
-}
-
-/* ✅ bottom-left = DOWN */
-.downBtn{
-  left: 14px;
-  bottom: 14px;
-}
-
-/* ✅ bottom-right = UP */
-.upBtn{
-  right: 14px;
-  bottom: 14px;
-}
-
-/* show only on mobile */
-@media (min-width: 981px){
-  .mobileControls{ display:none !important; }
-}
-
-/* ================== RESPONSIVE ================== */
-@media (max-width: 980px){
-
-  /* layout vertical */
-  .gameShell{
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: 10px;
-    padding: 10px;
-  }
-
-  /* ✅ side panel becomes scroll ribbon */
-  .sidePanel{
-    flex-direction: row;
-    flex-wrap: nowrap;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    gap: 12px;
-    max-width: 100%;
-    padding: 12px;
-    border-radius: 22px;
-
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .sidePanel::-webkit-scrollbar{ display:none; }
-
-  .sidePanel > *{
-    min-width: 250px;
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-  }
-
-  /* bigger hud buttons */
-  .hudBtn{
-    width: 48px;
-    height: 42px;
-    border-radius: 14px;
-  }
-
-  /* ✅ IMPORTANT: remove bottom bar (YOUR REQUEST) */
-  .bottomConsole{
-    display: none !important;
-  }
-}
-
-@media (max-width: 420px){
-  .gameShell{ padding: 8px; gap: 8px; }
-  .sidePanel > *{ min-width: 230px; }
-  canvas#game{ border-radius: 20px; }
-}
-
-/* ✅ keep all key UI elements from being "double-tap highlighted" */
-.mcBtn, .shopBtn, .startBtn, .tabBtn, .buyBtn, .closeShop, .menuSelect{
+  transition: transform 0.12s ease, box-shadow 0.25s ease, filter 0.25s ease;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.mobileBtn span{
+  filter: drop-shadow(0 3px 10px rgba(0,0,0,0.6));
+  transform: translateY(-1px);
+}
+
+/* ✅ UP button (Top Right) */
+.upBtn{
+  top: 14px;
+  right: 14px;
+
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.55),
+    0 0 18px rgba(0, 200, 255, 0.35),
+    inset 0 2px 10px rgba(255,255,255,0.10);
+}
+
+/* ✅ DOWN button (Bottom Left) */
+.downBtn{
+  bottom: 14px;
+  left: 14px;
+
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.55),
+    0 0 18px rgba(255, 0, 170, 0.35),
+    inset 0 2px 10px rgba(255,255,255,0.10);
+}
+
+/* ✅ Press Animation */
+.mobileBtn:active{
+  transform: scale(0.92);
+  filter: brightness(1.15);
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.6),
+    inset 0 3px 14px rgba(0,0,0,0.35);
+}
+
+/* Hide buttons on desktop */
+@media (min-width: 900px){
+  .mobileBtn{ display:none; }
+}
+
+/* =========================
+   FULLSCREEN GAME MODE
+   (only game becomes fullscreen)
+========================= */
+body.fullscreen-game .topbar,
+body.fullscreen-game .panel.left,
+body.fullscreen-game .panel.right,
+body.fullscreen-game .drawer {
+  display: none !important;
+}
+
+body.fullscreen-game .app{
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.fullscreen-game .layout{
+  display: block !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.fullscreen-game .gameArea{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.fullscreen-game .stageWrap{
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+body.fullscreen-game .stage{
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+body.fullscreen-game #game{
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* Ribbon stays visible */
+body.fullscreen-game .gameRibbonBox{
+  bottom: 18px !important;
+}
+/* ✅ Mobile safe fullscreen fit */
+body.fullscreen-game {
+  overflow: hidden !important;
+}
+
+body.fullscreen-game .bg {
+  display: none !important; /* optional: improves FPS */
+}
+
+body.fullscreen-game .stage {
+  background: #000 !important;
+}
+
+/* hide overlay blur lag in full screen (optional performance boost) */
+body.fullscreen-game .overlay {
+  backdrop-filter: none !important;
+}
+/* ===========================
+   Mobile Buttons (Bottom + Arrows)
+   =========================== */
+
+/* Place both buttons at bottom */
+#btnUp, #btnDown {
+  position: absolute;
+  bottom: 14px;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+/* Left & right placement */
+#btnDown { left: 16px; }
+#btnUp   { right: 16px; }
+
+/* Premium game button look */
+.mobileBtn {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+
+  transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.mobileBtn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+/* Arrow icon styling */
+.mobileBtn .btnIcon {
+  font-size: 30px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+
+  text-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.75);
+}
+/* =========================
+   SKIN SELECT (Premium UI)
+   ========================= */
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.settingRow span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.90);
+}
+
+/* The select dropdown */
+#skinSelect {
+  width: 180px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  outline: none;
+
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(0, 0, 0, 0.55);
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+/* hover / focus glow */
+#skinSelect:hover,
+#skinSelect:focus {
+  border-color: rgba(80, 220, 255, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(80, 220, 255, 0.12),
+    0 18px 36px rgba(0, 0, 0, 0.50);
+  transform: translateY(-1px);
+}
+
+/* dropdown options */
+#skinSelect option {
+  background: rgba(10, 10, 15, 1);
+  color: white;
+  font-weight: 700;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  #skinSelect {
+    width: 150px;
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .settingRow span {
+    font-size: 13px;
+  }
+}
+#skinSelect {
+  background: linear-gradient(180deg, rgba(0,0,0,0.75), rgba(0,0,0,0.45));
+}
+
+.settingRow {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 14px 40px rgba(0, 0, 0, 0.28);
+}
+/* ✅ Mobile Fullscreen Tip Popup (NO JS) */
+.tipPopupOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.tipPopup{
+  width: min(92vw, 380px);
+  padding: 18px 16px;
+  border-radius: 18px;
+
+  background: rgba(15, 18, 30, 0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.6);
+  text-align: center;
+  color: rgba(255,255,255,0.92);
+}
+
+.tipPopup h2{
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.tipPopup p{
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  opacity: 0.95;
+}
+
+.tipPopupBtn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  cursor: pointer;
+  user-select: none;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+
+  background: linear-gradient(180deg, rgba(80,220,255,0.9), rgba(60,130,255,0.9));
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(60,130,255,0.25);
+  transition: transform 0.15s ease;
+}
+
+.tipPopupBtn:hover{
+  transform: translateY(-1px);
+}
+
+/* Hide checkbox itself */
+.tipCloseCheck{
+  display: none;
+}
+
+/* ✅ Close popup when checkbox clicked */
+.tipPopupBtn:has(.tipCloseCheck:checked) .tipCloseCheck{
+  display: none;
+}
+.tipPopupBtn:has(.tipCloseCheck:checked){
+  pointer-events: none;
+}
+
+/* ✅ actually hide overlay when checked */
+.tipPopupOverlay:has(.tipCloseCheck:checked){
+  display: none;
+}
+/* ============================================
+   MOBILE UI UPGRADE ✅ (Does NOT affect laptop)
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* Overall spacing / fit */
+  body {
+    overflow: hidden;
+  }
+
+  #stageContainer {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  /* Make game canvas look more immersive */
+  canvas#game {
+    border-radius: 18px;
+  }
+
+  /* Title bar / header spacing */
+  .titleBar, .topBar, #topBar {
+    padding: 10px 12px !important;
+  }
+
+  /* Ribbon buttons (Sound / Fullscreen etc.) */
+  .ribbonBtn {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+
+    background: rgba(255, 255, 255, 0.09) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    box-shadow: 0 14px 38px rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px !important;
+    transition: transform 0.12s ease, filter 0.12s ease;
+  }
+
+  .ribbonBtn:active {
+    transform: scale(0.94);
+    filter: brightness(1.2);
+  }
+
+  /* Drawer button gets special glow */
+  #drawerBtn {
+    background: linear-gradient(180deg, rgba(80,220,255,0.95), rgba(60,130,255,0.92)) !important;
+    border: 0 !important;
+    box-shadow: 0 14px 40px rgba(60,130,255,0.28) !important;
+  }
+
+  /* Mobile Controls container */
+  #mobileControls,
+  .mobileControls {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+
+    padding: 12px 14px 16px !important;
+    gap: 12px;
+    z-index: 30;
+  }
+
+  /* Mobile Buttons (Up/Down) */
+  #btnUp, #btnDown {
+    pointer-events: auto;
+
+    width: 74px !important;
+    height: 74px !important;
+    border-radius: 22px !important;
+
+    font-size: 28px !important;
+    font-weight: 900;
+
+    background: rgba(0, 0, 0, 0.45) !important;
+    border: 1px solid rgba(255,255,255,0.16) !important;
+    box-shadow:
+      0 14px 40px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    touch-action: none;
+    user-select: none;
+  }
+
+  /* Button glow */
+  #btnUp {
+    box-shadow:
+      0 14px 40px rgba(0,0,0,0.45),
+      0 0 0 3px rgba(80,220,255,0.10),
+      0 0 26px rgba(80,220,255,0.18);
+  }
+
+  #btnDown {
+    box-shadow:
+      0 14px 40px rgba(0,0,0,0.45),
+      0 0 0 3px rgba(255,70,170,0.10),
+      0 0 26px rgba(255,70,170,0.15);
+  }
+
+  /* Press animation = more interactive */
+  #btnUp:active, #btnDown:active {
+    transform: scale(0.92);
+    filter: brightness(1.2);
+  }
+
+  /* Optional small hint labels (if you use text inside buttons) */
+  #btnUp span, #btnDown span {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: 0.7;
+    letter-spacing: 0.3px;
+  }
+
+  /* Drawer: full-height mobile sheet feel */
+  #drawer {
+    width: min(92vw, 420px) !important;
+    border-radius: 18px !important;
+    padding: 14px !important;
+  }
+
+  /* Make settings rows more touch friendly */
+  .settingRow {
+    padding: 12px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Skin select fits mobile */
+  #skinSelect {
+    width: 165px !important;
+    padding: 10px 10px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Overlay looks like premium dialog on mobile */
+  #overlay .panel,
+  .overlayPanel,
+  #overlay {
+    border-radius: 18px !important;
+  }
 }
