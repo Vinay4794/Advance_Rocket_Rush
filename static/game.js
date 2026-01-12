@@ -28,6 +28,11 @@ const scoreEl = $("scoreEl");
 const highScoreEl = $("highScoreEl");
 const speedEl = $("speedEl");
 const levelEl = $("levelEl");
+// ✅ Mobile HUD mirrors
+const mLevelEl = $("mLevelEl");
+const mDifficultyText = $("mDifficultyText");
+const mDifficultyProgress = $("mDifficultyProgress");
+
 
 const modeSelect = $("modeSelect");
 const shieldBtn = $("shieldBtn");
@@ -239,6 +244,18 @@ updateWalletUI();
 // =====================
 // Utils
 // =====================
+function syncMobileHud(){
+  // only for mobile layouts
+  if(!isMobileUI()) return;
+
+  if(levelEl && mLevelEl) mLevelEl.textContent = levelEl.textContent;
+  if(difficultyText && mDifficultyText) mDifficultyText.textContent = difficultyText.textContent;
+
+  if(difficultyProgress && mDifficultyProgress){
+    mDifficultyProgress.style.width = difficultyProgress.style.width || "0%";
+  }
+}
+
 function isMobileUI(){
   return matchMedia("(max-width: 980px)").matches;
 }
@@ -705,6 +722,9 @@ function updateDifficulty(dt){
   if(difficultyProgress) difficultyProgress.style.width = `${difficulty}%`;
   if(difficultyText) difficultyText.textContent = `${Math.floor(difficulty)}%`;
   if(levelEl) levelEl.textContent = String(level);
+    // ✅ mirror bottom bar HUD -> mobile HUD
+  syncMobileHud();
+
 }
 
 // =====================
