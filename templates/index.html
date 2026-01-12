@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Aurora Rocket</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body class="theme-space">
+  <div class="auroraBg"></div>
+  <div class="grain"></div>
+
+  <div class="floatIcons" aria-hidden="true">
+    <span class="fi star"></span>
+    <span class="fi spark"></span>
+    <span class="fi orb"></span>
+    <span class="fi ring"></span>
+  </div>
+
+  <div class="gameShell">
+
+    <!-- LEFT PANEL -->
+    <aside class="sidePanel">
+      <div class="brand">
+        <div class="brandIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2c4.2 3.4 7 8.1 7 13.2C19 19.1 16 22 12 22S5 19.1 5 15.2C5 10.1 7.8 5.4 12 2Z"
+              stroke="currentColor" stroke-width="1.6"/>
+            <path d="M12 6c2.7 2.5 4.5 5.5 4.5 9 0 2.7-2 4.8-4.5 4.8S7.5 17.7 7.5 15c0-3.5 1.8-6.5 4.5-9Z"
+              stroke="currentColor" stroke-width="1.6" opacity="0.65"/>
+          </svg>
+        </div>
+        <div class="brandText">
+          <div class="brandName">Rocket Rush</div>
+          <div class="brandTag">coins • shop • skins • themes</div>
+        </div>
+      </div>
+
+      <div class="menuGrid">
+        <div class="menuBlock">
+          <label class="menuLabel">MODE</label>
+          <select id="modeSelect" class="menuSelect">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+            <option value="extreme">Extreme</option>
+          </select>
+        </div>
+
+        <div class="menuBlock">
+          <label class="menuLabel">POWER</label>
+          <button id="shieldBtn" class="powerBtn">
+            <span class="powerIcon">🛡</span>
+            <span class="powerText">Shield</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="coinsCard">
+        <div class="coinsLeft">
+          <div class="coinsIcon">🪙</div>
+          <div>
+            <div class="coinsLabel">Coins</div>
+            <div id="coinsEl" class="coinsValue">0</div>
+          </div>
+        </div>
+        <button id="shopBtn" class="shopBtn"><span class="shopIcon">🛒</span> Shop</button>
+      </div>
+
+      <div class="customCard">
+        <div class="customHead"><span class="chipIcon">🎨</span> CUSTOMIZE</div>
+
+        <div class="customGrid">
+          <div class="customItem">
+            <div class="customKey">Theme</div>
+            <select id="themeSelect" class="menuSelect">
+              <option value="space" selected>Space</option>
+              <option value="aurora">Aurora</option>
+              <option value="sunset">Sunset</option>
+              <option value="cyber">Cyber</option>
+            </select>
+          </div>
+
+          <div class="customItem">
+            <div class="customKey">Skin</div>
+            <select id="skinSelect" class="menuSelect">
+              <option value="classic" selected>Classic</option>
+              <option value="phantom">Phantom</option>
+              <option value="emerald">Emerald</option>
+              <option value="gold">Gold</option>
+              <option value="nebula">Nebula</option>
+              <option value="cute">Cute Rocket</option>
+
+            </select>
+          </div>
+        </div>
+
+        <div class="tinyNote">Tip: buy skins/themes in Shop</div>
+      </div>
+
+      <div class="statsRowCard">
+        <div class="statBox">
+          <div class="miniKey">Score</div>
+          <div id="scoreEl" class="miniVal">0</div>
+        </div>
+        <div class="statBox">
+          <div class="miniKey">High</div>
+          <div id="highScoreEl" class="miniVal">0</div>
+        </div>
+      </div>
+
+      <div class="tipCard">
+        <div class="tipTitle"><span class="dot"></span> SYSTEM</div>
+        <div id="tipText" class="tipText">Collect coins, open Shop, buy skins/themes.</div>
+      </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="playArea" id="stageShell">
+
+      <header class="topHud">
+        <div class="hudLeft">
+          <span class="pill">ARCADE</span>
+          <span class="hudTitle">Flight for Life </span>
+        </div>
+
+        <div class="hudRight">
+          <button id="fullscreenBtn" class="hudBtn" title="Fullscreen (F)">⛶</button>
+          <button id="soundBtn" class="hudBtn" title="Sound">🔊</button>
+          <button id="pauseBtn" class="hudBtn" title="Pause">⏸</button>
+          <button id="restartBtn" class="hudBtn danger" title="Restart">⟲</button>
+        </div>
+      </header>
+
+      <!-- ✅ FIXED: only ONE stageContainer + ONE canvas -->
+      <section id="stageContainer" class="stageContainer">
+        <canvas id="game"></canvas>
+<!-- MOBILE CONTROLS (ONLY UP/DOWN) -->
+<div class="mobileControls">
+  <button id="downBtn" class="ctrlBtn downBtn">⬇</button>
+  <button id="upBtn" class="ctrlBtn upBtn">⬆</button>
+</div>
+
+        <div id="overlay" class="overlay hidden">
+          <div class="overlayCard">
+            <div class="overlayTitle">AURORA ROCKET</div>
+            <div class="overlaySub">Press START or tap to begin</div>
+            <div class="overlayHint">Coins + Shop available • Press <b>F</b> for fullscreen</div>
+          </div>
+        </div>
+
+        <!-- ✅ FIXED: GameOver has only RESTART -->
+        <div id="gameOverUI" class="gameOver hidden">
+          <div class="gameOverCard">
+            <div class="goTitle">MISSION FAILED</div>
+            <div class="goSub">Your ship has been destroyed</div>
+
+            <div class="goStats">
+              <div class="goStat"><div class="goKey">Score</div><div id="finalScore" class="goVal">0</div></div>
+              <div class="goStat"><div class="goKey">High</div><div id="finalHigh" class="goVal">0</div></div>
+              <div class="goStat"><div class="goKey">Level</div><div id="finalLevel" class="goVal">1</div></div>
+            </div>
+
+            <div class="goActions">
+              <button id="restartOnlyBtn" class="goBtn primary">RESTART</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHOP MODAL -->
+        <div id="shopModal" class="shopModal hidden">
+          <div class="shopBackdrop"></div>
+          <div class="shopPanel">
+            <div class="shopTop">
+              <div class="shopTitle"><span class="shopTitleIcon">🛒</span> Premium Shop</div>
+              <div class="shopTopRight">
+                <div class="wallet"><span class="walletIcon">🪙</span><span id="walletCoins">0</span></div>
+                <button id="closeShopBtn" class="closeShop">✕</button>
+              </div>
+            </div>
+
+            <div class="shopTabs">
+              <button class="tabBtn active" data-tab="skins">Skins</button>
+              <button class="tabBtn" data-tab="themes">Themes</button>
+            </div>
+
+            <div id="shopContent" class="shopContent"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="bottomConsole bottomRibbon">
+
+  <div class="consoleLeft">
+    <div class="miniStat">
+      <div class="miniKey">SPEED</div>
+      <div id="speedEl" class="miniVal">1x</div>
+    </div>
+    <div class="miniStat">
+      <div class="miniKey">LEVEL</div>
+      <div id="levelEl" class="miniVal">1</div>
+    </div>
+  </div>
+
+  <!-- ✅ Difficulty moved here -->
+  <div class="consoleMid">
+    <div class="diffTopRow">
+      <span class="diffLabel">DIFFICULTY</span>
+      <span id="difficultyText" class="diffValue">0%</span>
+    </div>
+    <div class="diffBarOuter">
+      <div id="difficultyProgress" class="diffBarInner"></div>
+    </div>
+  </div>
+
+  <div class="consoleRight">
+    <!-- ✅ Start game moved here -->
+    <button id="startBtn" class="startBtn bottomStartBtn">START GAME</button>
+  </div>
+
+</footer>
+
+
+  <script src="/static/game.js"></script>
+</body>
+</html>
