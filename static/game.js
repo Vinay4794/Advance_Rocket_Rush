@@ -102,6 +102,7 @@ const SKINS = [
   { id:"cute", name:"Cute Rocket", price:120, icon:"🎀", desc:"Round adorable rocket with big window." },
   { id:"emerald", name:"Emerald Engine", price:220, icon:"💚", desc:"Green neon engine glow." },
   { id:"phantom", name:"Phantom Stealth", price:360, icon:"👻", desc:"Stealth aura & ghost glow." },
+  { id:"ghost", name:"Ghost Rider", price:500, icon:"👻", desc:"Transparent ghost ship with mist tail." },
 
   // ----- Mid tier -----
   { id:"jet", name:"Neon Jet", price:650, icon:"✈️", desc:"Fast-looking futuristic jet." },
@@ -846,6 +847,103 @@ function drawHex(x,y,r,fill,stroke,sw=2){
   ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();
   ctx.restore();
 }
+function drawGhostRocket(){
+  const cx = rocket.x + rocket.w/2;
+  const cy = rocket.y + rocket.h/2;
+  const skin = getSkinColors();
+
+  const maxS = (rocket.maxSpeedY || rocket.maxSpeed || 650);
+  const speed = Math.min(1, Math.abs(rocket.vy) / maxS);
+
+  // ✅ Tilt EXACTLY like Cute Rocket
+  const targetTilt = clamp(rocket.vy / maxS, -1, 1) * 1.95;
+  rocketTilt += (targetTilt - rocketTilt) * 0.88;
+
+  const w = rocket.w * 1.35;
+  const h = rocket.h * 1.35;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rocketTilt);
+
+  // ghost aura
+  drawGlowCircle(0, 0, w*0.90, skin.flame, 0.10 + speed*0.10);
+
+  // ghost body (soft capsule)
+  ctx.fillStyle = skin.body;
+  ctx.strokeStyle = skin.stroke;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.roundRect(-w*0.36, -h*0.24, w*0.72, h*0.48, 999);
+  ctx.fill();
+  ctx.stroke();
+
+  // ghost tail waves (back)
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = "rgba(230,245,255,0.42)";
+  ctx.beginPath();
+  ctx.moveTo(-w*0.36, -h*0.12);
+  ctx.quadraticCurveTo(-w*0.62, -h*0.10, -w*0.70, 0);
+  ctx.quadraticCurveTo(-w*0.62,  h*0.10, -w*0.36, h*0.12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // cute ghost eyes
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = "rgba(5,10,20,0.55)";
+  ctx.beginPath(); ctx.arc(w*0.16, -h*0.03, 3.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(w*0.28, -h*0.03, 3.4, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // small mouth
+  ctx.globalAlpha = 0.55;
+  ctx.strokeStyle = "rgba(5,10,20,0.45)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(w*0.22, h*0.06, 3.2, 0, Math.PI);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // soft inner core glow
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.beginPath();
+  ctx.roundRect(-w*0.10, -h*0.14, w*0.32, h*0.28, 999);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // ghost flame (misty)
+  const flameLen = 24 + speed*32 + (powers.boost.active ? 18 : 0);
+  const col = powers.boost.active ? "rgba(34,197,94,0.95)" : skin.flame;
+
+  drawGlowCircle(-w*0.50, 0, 16 + speed*12, col, 0.16 + speed*0.12);
+
+  ctx.globalAlpha = 0.75;
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.40, 0);
+  ctx.quadraticCurveTo(-w*0.40 - flameLen, -14 - speed*7, -w*0.40 - flameLen, 0);
+  ctx.quadraticCurveTo(-w*0.40 - flameLen,  14 + speed*7, -w*0.40, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // shield bubble
+  if(powers.shield.active){
+    ctx.globalAlpha = 0.16;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(0,0,w*0.76,h*0.58,0,0,Math.PI*2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
 function drawCuteRocket(){
   const cx = rocket.x + rocket.w/2;
   const cy = rocket.y + rocket.h/2;
@@ -968,6 +1066,177 @@ function drawCuteRocket(){
 
   ctx.restore();
 }
+function drawEmeraldRocket(){
+  const cx = rocket.x + rocket.w/2;
+  const cy = rocket.y + rocket.h/2;
+  const skin = getSkinColors();
+
+  const maxS = (rocket.maxSpeedY || rocket.maxSpeed || 650);
+  const speed = Math.min(1, Math.abs(rocket.vy) / maxS);
+
+  // ✅ Tilt like Cute Rocket
+  const targetTilt = clamp(rocket.vy / maxS, -1, 1) * 1.95;
+  rocketTilt += (targetTilt - rocketTilt) * 0.88;
+
+  const w = rocket.w * 1.40;
+  const h = rocket.h * 1.30;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rocketTilt);
+
+  // emerald aura
+  drawGlowCircle(0, 0, w*0.80, skin.flame, 0.10 + speed*0.12);
+
+  // body (diamond tech hull)
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.strokeStyle = "rgba(34,197,94,0.70)";
+  ctx.lineWidth = 2.4;
+
+  ctx.beginPath();
+  ctx.moveTo(w*0.70, 0);
+  ctx.lineTo(w*0.20, -h*0.45);
+  ctx.lineTo(-w*0.55, 0);
+  ctx.lineTo(w*0.20,  h*0.45);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // inner core
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = "rgba(0,0,0,0.48)";
+  ctx.beginPath();
+  ctx.moveTo(w*0.36, 0);
+  ctx.lineTo(w*0.08, -h*0.22);
+  ctx.lineTo(-w*0.22, 0);
+  ctx.lineTo(w*0.08,  h*0.22);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // emerald stripes
+  ctx.globalAlpha = 0.70;
+  ctx.strokeStyle = "rgba(255,255,255,0.55)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(w*0.14, -h*0.38);
+  ctx.lineTo(-w*0.38, 0);
+  ctx.lineTo(w*0.14, h*0.38);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // engine glow + flame
+  const flameLen = 26 + speed*34 + (powers.boost.active ? 20 : 0);
+  const col = powers.boost.active ? "rgba(34,197,94,0.95)" : skin.flame;
+
+  drawGlowCircle(-w*0.45, 0, 16+speed*10, col, 0.22 + speed*0.18);
+
+  ctx.fillStyle = col;
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.52, 0);
+  ctx.quadraticCurveTo(-w*0.52-flameLen, -14 - speed*8, -w*0.52-flameLen, 0);
+  ctx.quadraticCurveTo(-w*0.52-flameLen,  14 + speed*8, -w*0.52, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // shield
+  if(powers.shield.active){
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(0,0,w*0.70,0,Math.PI*2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+function drawPhantomRocket(){
+  const cx = rocket.x + rocket.w/2;
+  const cy = rocket.y + rocket.h/2;
+  const skin = getSkinColors();
+
+  const maxS = (rocket.maxSpeedY || rocket.maxSpeed || 650);
+  const speed = Math.min(1, Math.abs(rocket.vy) / maxS);
+
+  // ✅ Tilt like Cute Rocket
+  const targetTilt = clamp(rocket.vy / maxS, -1, 1) * 1.95;
+  rocketTilt += (targetTilt - rocketTilt) * 0.88;
+
+  const w = rocket.w * 1.35;
+  const h = rocket.h * 1.35;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rocketTilt);
+
+  // stealth mist aura
+  drawGlowCircle(0, 0, w*0.85, "rgba(167,139,250,1)", 0.08 + speed*0.10);
+
+  // ghost body (capsule)
+  ctx.fillStyle = "rgba(255,255,255,0.10)";
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.roundRect(-w*0.35, -h*0.24, w*0.74, h*0.48, 999);
+  ctx.fill(); ctx.stroke();
+
+  // dark inner fog
+  ctx.globalAlpha = 0.8;
+  ctx.fillStyle = "rgba(0,0,0,0.38)";
+  ctx.beginPath();
+  ctx.roundRect(-w*0.20, -h*0.17, w*0.40, h*0.34, 999);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // phantom eyes (ghost)
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.beginPath(); ctx.arc(w*0.18, -h*0.05, 3.2, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(w*0.28, -h*0.05, 3.2, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // tail fade at back
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = "rgba(167,139,250,0.22)";
+  ctx.beginPath();
+  ctx.moveTo(-w*0.35, -h*0.12);
+  ctx.quadraticCurveTo(-w*0.75, 0, -w*0.35, h*0.12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // phantom flame (thin)
+  const flameLen = 22 + speed*28 + (powers.boost.active ? 18 : 0);
+  const col = powers.boost.active ? "rgba(34,197,94,0.95)" : skin.flame;
+
+  drawGlowCircle(-w*0.50, 0, 14+speed*10, col, 0.18 + speed*0.18);
+
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.42, 0);
+  ctx.quadraticCurveTo(-w*0.42 - flameLen, -12, -w*0.42 - flameLen, 0);
+  ctx.quadraticCurveTo(-w*0.42 - flameLen,  12, -w*0.42, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // shield
+  if(powers.shield.active){
+    ctx.globalAlpha = 0.16;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.ellipse(0,0,w*0.72,h*0.55,0,0,Math.PI*2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
 function drawUFO(){
   const cx = rocket.x + rocket.w/2;
   const cy = rocket.y + rocket.h/2;
@@ -1666,6 +1935,13 @@ function getSkinColors(){
     case "emerald": return { body:"rgba(240,255,245,0.92)", stroke:"rgba(34,197,94,0.45)", flame:"rgba(34,197,94,0.92)" };
     case "gold": return { body:"rgba(255,248,225,0.92)", stroke:"rgba(255,198,88,0.55)", flame:"rgba(255,198,88,0.92)" };
     case "nebula": return { body:"rgba(245,246,255,0.92)", stroke:"rgba(167,139,250,0.65)", flame:"rgba(56,189,248,0.95)" };
+      case "ghost":
+  return {
+    body: "rgba(230,245,255,0.62)",
+    stroke: "rgba(255,255,255,0.18)",
+    flame: "rgba(200,230,255,0.95)"
+  };
+
     default: return { body:"rgba(245,246,255,0.92)", stroke:"rgba(167,139,250,0.50)", flame:"rgba(56,189,248,0.95)" };
   }
 }
@@ -1916,28 +2192,34 @@ function drawClassicRocket(){
 
 // global tilt (keep)
 
-
 function drawRocket(){
   switch(equippedSkin){
 
-    case "classic":     return drawClassicRocket();   // ✅ NEW
-    case "cute":        return drawCuteRocket();
-    case "ufo":         return drawUFO();
-    case "jet":         return drawJet();
+    case "classic":      return drawClassicRocket();
+    case "cute":         return drawCuteRocket();
+    case "ghost":        return drawGhostRocket();
 
-    case "shuttleMini": return drawMiniShuttle();
-    case "cyberBlade":  return drawCyberBlade();
-    case "diamondElite":return drawDiamondElite();
-    case "dragonShip":  return drawDragonShip();
-    case "cometSpear":  return drawCometSpear();
-    case "twinFighter": return drawTwinFighter();
-    case "satDrone":    return drawSatelliteDrone();
-    case "octoUfo":     return drawOctoUFO();
+    // ✅ ADD THESE TWO
+    case "emerald":      return drawEmeraldRocket();
+    case "phantom":      return drawPhantomRocket();
+
+    case "ufo":          return drawUFO();
+    case "jet":          return drawJet();
+
+    case "shuttleMini":  return drawMiniShuttle();
+    case "cyberBlade":   return drawCyberBlade();
+    case "diamondElite": return drawDiamondElite();
+    case "dragonShip":   return drawDragonShip();
+    case "cometSpear":   return drawCometSpear();
+    case "twinFighter":  return drawTwinFighter();
+    case "satDrone":     return drawSatelliteDrone();
+    case "octoUfo":      return drawOctoUFO();
 
     default:
-      return drawClassicRocket(); // ✅ better fallback
+      return drawClassicRocket();
   }
 }
+
 
 
 /* ✅ RED GATE WALLS */
