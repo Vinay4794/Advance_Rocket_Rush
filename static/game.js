@@ -108,28 +108,24 @@ const SKINS = [
   { id:"cute", name:"Cute Rocket", price:120, icon:"🎀", desc:"Round adorable rocket with big window." },
   { id:"emerald", name:"Emerald Engine", price:220, icon:"💚", desc:"Green neon engine glow." },
   { id:"phantom", name:"Phantom Stealth", price:360, icon:"👻", desc:"Stealth aura & ghost glow." },
-  { id:"ghost", name:"Ghost Rider", price:500, icon:"👻", desc:"Transparent ghost ship with mist tail." },
+  { id:"ghost", name:"Ghost Rider", price:500, icon:"🌫️", desc:"Transparent ghost ship with mist tail." },
 
   // ----- Mid tier -----
   { id:"jet", name:"Neon Jet", price:650, icon:"✈️", desc:"Fast-looking futuristic jet." },
   { id:"ufo", name:"UFO Saucer", price:850, icon:"🛸", desc:"Hover saucer with beam glow." },
-  { id:"shuttle", name:"Space Shuttle", price:1100, icon:"🚀", desc:"Classic shuttle with boosters." },
-  { id:"nebula", name:"Nebula Ship", price:1400, icon:"🌌", desc:"Cosmic body and aurora trail." },
-
-  // ----- High / premium -----
-  { id:"gold", name:"Golden Royal", price:2200, icon:"👑", desc:"Luxury gold plating + shine." },
-  { id:"dragon", name:"Dragon Ship", price:4200, icon:"🐉", desc:"Fire core ship with aggressive flame." },
-  { id:"cyber", name:"Cyber Blade", price:6500, icon:"🤖", desc:"Polygon cyber craft with neon edges." },
-  { id:"diamond", name:"Diamond Elite", price:12000, icon:"💎", desc:"Top tier elite craft with ultra glow." },
   { id:"shuttleMini", name:"Mini Shuttle", price:1800, icon:"🛰️", desc:"Shuttle with boosters." },
-  { id:"cyberBlade", name:"Cyber Blade", price:6500, icon:"⚡", desc:"Sharp cyber craft." },
-  { id:"diamondElite", name:"Diamond Elite", price:12000, icon:"💎", desc:"Elite futuristic craft." },
-  { id:"dragonShip", name:"Dragon Ship", price:4200, icon:"🐉", desc:"Dragon core flame ship." },
+
+  // ----- Premium -----
   { id:"cometSpear", name:"Comet Spear", price:2600, icon:"☄️", desc:"Spear rocket with comet trail." },
   { id:"twinFighter", name:"Twin Fighter", price:3200, icon:"🛩️", desc:"Twin engines + wings." },
   { id:"satDrone", name:"Satellite Drone", price:2400, icon:"📡", desc:"Orbital drone craft." },
   { id:"octoUfo", name:"Octo UFO", price:5000, icon:"👾", desc:"Cute UFO with legs." },
+
+  { id:"dragonShip", name:"Dragon Ship", price:4200, icon:"🐉", desc:"Dragon core flame ship." },
+  { id:"cyberBlade", name:"Cyber Blade", price:6500, icon:"⚡", desc:"Sharp cyber craft." },
+  { id:"diamondElite", name:"Diamond Elite", price:12000, icon:"💎", desc:"Elite futuristic craft." },
 ];
+
 const THEME_STYLES = {
   space: {
     bgTop: "#000000",
